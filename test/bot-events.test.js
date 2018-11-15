@@ -4,8 +4,8 @@ import sinonChai from 'sinon-chai';
 import sinon from 'sinon';
 import irc from 'irc-upd';
 import discord from 'discord.js';
-import logger from 'winston';
 import Bot from '../lib/bot';
+import logger from '../lib/logger';
 import createDiscordStub from './stubs/discord-stub';
 import ClientStub from './stubs/irc-client-stub';
 import config from './fixtures/single-test-config.json';
@@ -158,7 +158,9 @@ describe('Bot Events', function () {
     bot.channelUsers.should.be.an('object');
     const channel = '#channel';
     // nick => '' means the user is not a special user
-    const nicks = { [bot.nickname]: '', user: '', user2: '@', user3: '+' };
+    const nicks = {
+      [bot.nickname]: '', user: '', user2: '@', user3: '+'
+    };
     bot.ircClient.emit('names', channel, nicks);
     const channelNicks = new Set([bot.nickname, 'user', 'user2', 'user3']);
     bot.channelUsers.should.deep.equal({ '#channel': channelNicks });

@@ -1,6 +1,6 @@
 # discord-irc [![Build Status](https://travis-ci.org/reactiflux/discord-irc.svg?branch=master)](https://travis-ci.org/reactiflux/discord-irc) [![Coverage Status](https://coveralls.io/repos/github/reactiflux/discord-irc/badge.svg?branch=master)](https://coveralls.io/github/reactiflux/discord-irc?branch=master)
 
-> Connects [Discord](https://discordapp.com/) and IRC channels by sending messages back and forth.
+> Connects [Discord](https://discordapp.com/) and [IRC](https://www.ietf.org/rfc/rfc1459.txt) channels by sending messages back and forth.
 
 ## Example
 ![discord-irc](http://i.imgur.com/oI6iCrf.gif)
@@ -69,7 +69,12 @@ First you need to create a Discord bot user, which you can do by following the i
     },
     "ircOptions": { // Optional node-irc options
       "floodProtection": false, // On by default
-      "floodProtectionDelay": 1000 // 500 by default
+      "floodProtectionDelay": 1000, // 500 by default
+      "port": "6697", // 6697 by default
+      "secure": true, // enable SSL, false by default
+      "sasl": true, // false by default
+      "username": "test", // nodeirc by default
+      "password": "p455w0rd" // empty by default
     },
     "format": { // Optional custom formatting options
       // Patterns, represented by {$patternName}, are replaced when sending messages
@@ -86,7 +91,15 @@ First you need to create a Discord bot user, which you can do by following the i
     // Makes the bot hide the username prefix for messages that start
     // with one of these characters (commands):
     "commandCharacters": ["!", "."],
-    "ircStatusNotices": true // Enables notifications in Discord when people join/part in the relevant IRC channel
+    "ircStatusNotices": true, // Enables notifications in Discord when people join/part in the relevant IRC channel
+    "ignoreUsers": {
+      "irc": ["irc_nick1", "irc_nick2"], // Ignore specified IRC nicks and do not send their messages to Discord.
+      "discord": ["discord_nick1", "discord_nick2"] // Ignore specified Discord nicks and do not send their messages to IRC.
+    },
+    // List of webhooks per channel
+    "webhooks": {
+      "#discord": "https://discordapp.com/api/webhooks/id/token"
+    }
   }
 ]
 ```
@@ -94,6 +107,29 @@ First you need to create a Discord bot user, which you can do by following the i
 The `ircOptions` object is passed directly to irc-upd ([available options](https://node-irc-upd.readthedocs.io/en/latest/API.html#irc.Client)).
 
 To retrieve a discord channel ID, write `\#channel` on the relevant server – it should produce something of the form `<#1234567890>`, which you can then use in the `channelMapping` config.
+
+### Webhooks
+Webhooks lets you override nicknames and avatars, so messages coming from IRC
+can appear as regular Discord messages:
+
+![discord-webhook](http://i.imgur.com/lNeJIUI.jpg)
+
+To enable webhooks, follow part 1 of [this
+guide](https://support.discordapp.com/hc/en-us/articles/228383668-Intro-to-Webhooks)
+to create and retrieve a webhook URL for a specific channel, then enable it in
+discord-irc's config as follows:
+
+```json
+  "webhooks": {
+    "#discord-channel": "https://discordapp.com/api/webhooks/id/token"
+  }
+```
+
+### Encodings
+If you encounter trouble with some characters being corrupted from some clients (particularly umlauted characters, such as `ä` or `ö`), try installing the optional dependencies `iconv` and `node-icu-charset-detector`.
+The bot will produce a warning when started if the IRC library is unable to convert between encodings.
+
+Further information can be found in [the installation section of irc-upd](https://github.com/Throne3d/node-irc#character-set-detection).
 
 ## Tests
 Run the tests with:
